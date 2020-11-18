@@ -12,6 +12,10 @@ const INCLUDED_TYPES: &[&str] = &[
     "device",
     "proc_ops",
     "proc_dir_entry",
+    "usb_interface",
+    "usb_device_id",
+    "usb_driver",
+    "usbnet",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",
@@ -44,6 +48,11 @@ const INCLUDED_FUNCTIONS: &[&str] = &[
     "proc_remove",
     "register_kretprobe",
     "unregister_kretprobe",
+    "usb_register_driver",
+    "usb_deregister",
+    "usbnet_disconnect",
+    "usbnet_get_endpoints",
+    "usbnet_probe",
 ];
 const INCLUDED_VARS: &[&str] = &[
     "EINVAL",

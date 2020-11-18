@@ -7,6 +7,10 @@
 #include <linux/version.h>
 #include <linux/proc_fs.h>
 #include <linux/kprobes.h>
+#include <linux/netdevice.h>
+#include <linux/mii.h>
+#include <linux/usb.h>
+#include <linux/usb/usbnet.h>
 
 // Bindgen gets confused at certain things
 //
