@@ -1,5 +1,6 @@
 use alloc::vec;
 use alloc::vec::Vec;
+use core::convert::TryInto;
 use core::u32;
 
 use crate::bindings;
@@ -169,6 +170,61 @@ impl UserSlicePtrWriter {
         // behavior.
         self.0 = self.0.wrapping_add(data.len());
         self.1 -= data.len();
+        Ok(())
+    }
+}
+
+pub struct UserPtr(*mut c_types::c_void, usize);
+
+impl UserPtr {
+    pub unsafe fn new(
+        ptr: *mut c_types::c_void,
+        length: usize,
+    ) -> error::KernelResult<Self> {
+        if access_ok_helper(ptr, length as c_types::c_ulong) == 0 {
+            return Err(error::Error::EFAULT);
+        }
+
+        Ok(UserPtr(ptr, length))
+    }
+
+    pub fn read<T>(&self, obj: &mut T) -> error::KernelResult<()> {
+        if core::mem::size_of::<T>() != self.1 {
+            return Err(error::Error::EFAULT);
+        }
+
+        let res = unsafe {
+            bindings::_copy_from_user(
+                obj as *mut T as *mut c_types::c_void,
+                self.0,
+                core::mem::size_of::<T>().try_into()?,
+            )
+        };
+
+        if res != 0 {
+            return Err(error::Error::EFAULT);
+        }
+
+        Ok(())
+    }
+
+    pub fn write<T>(&self, obj: &T) -> error::KernelResult<()> {
+        if core::mem::size_of::<T>() != self.1 {
+            return Err(error::Error::EFAULT);
+        }
+
+        let res = unsafe {
+            bindings::_copy_to_user(
+                self.0,
+                obj as *const T as *const c_types::c_void,
+                core::mem::size_of::<T>().try_into()?,
+            )
+        };
+
+        if res != 0 {
+            return Err(error::Error::EFAULT);
+        }
+
         Ok(())
     }
 }
