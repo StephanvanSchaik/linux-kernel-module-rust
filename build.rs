@@ -10,6 +10,8 @@ const INCLUDED_TYPES: &[&str] = &[
     "kprobe_instance",
     "class",
     "device",
+    "proc_ops",
+    "proc_dir_entry",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",
@@ -37,6 +39,9 @@ const INCLUDED_FUNCTIONS: &[&str] = &[
     "class_destroy",
     "device_create",
     "device_destroy",
+    "proc_mkdir_mode",
+    "proc_create",
+    "proc_remove",
     "register_kretprobe",
     "unregister_kretprobe",
 ];
