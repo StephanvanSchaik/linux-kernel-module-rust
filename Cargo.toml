@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 bitflags = "1"
+intrusive-collections = "0.9"
 
 [build-dependencies]
 bindgen = "0.54"
