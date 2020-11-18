@@ -16,6 +16,7 @@ pub mod filesystem;
 pub mod ioctl;
 pub mod kprobe;
 pub mod printk;
+pub mod procfs;
 pub mod proc_operations;
 #[cfg(kernel_4_13_0_or_greater)]
 pub mod random;
