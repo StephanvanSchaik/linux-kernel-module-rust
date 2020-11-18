@@ -72,6 +72,7 @@ impl linux_kernel_module::file_operations::FileOperations for WriteFile {
 
     fn write(
         &self,
+        _file: &linux_kernel_module::file_operations::File,
         buf: &mut linux_kernel_module::user_ptr::UserSlicePtrReader,
         _offset: u64,
     ) -> linux_kernel_module::KernelResult<()> {
