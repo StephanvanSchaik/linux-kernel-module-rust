@@ -95,7 +95,7 @@ unsafe extern "C" fn write_callback<T: FileOperations>(
         Ok(v) => v,
         Err(_) => return Error::EINVAL.to_kernel_errno().try_into().unwrap(),
     };
-    match f.write(&mut data, positive_offset) {
+    match f.write(&File::from_ptr(file), &mut data, positive_offset) {
         Ok(()) => {
             let read = len - data.len();
             (*offset) += bindings::loff_t::try_from(read).unwrap();
@@ -213,6 +213,7 @@ pub trait FileOperations: Sync + Sized {
     /// function pointer in `struct file_operations`.
     fn write(
         &self,
+        _file: &File,
         _buf: &mut UserSlicePtrReader,
         _offset: u64,
     ) -> KernelResult<()> {
