@@ -86,6 +86,12 @@ pub struct Registration {
 // This is safe because Registration doesn't actually expose any methods.
 unsafe impl Sync for Registration {}
 
+impl Registration {
+    pub fn dev(&self) -> bindings::dev_t {
+        self.dev
+    }
+}
+
 impl Drop for Registration {
     fn drop(&mut self) {
         unsafe {
