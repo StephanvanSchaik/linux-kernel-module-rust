@@ -23,6 +23,7 @@ pub mod random;
 pub mod sysctl;
 mod types;
 pub mod usb;
+pub mod usb_net;
 pub mod user_ptr;
 
 pub use crate::error::{Error, KernelResult};
