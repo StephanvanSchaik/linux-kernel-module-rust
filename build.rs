@@ -8,6 +8,7 @@ const INCLUDED_TYPES: &[&str] = &[
     "umode_t",
     "ctl_table",
     "kprobe_instance",
+    "class",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",
@@ -31,6 +32,8 @@ const INCLUDED_FUNCTIONS: &[&str] = &[
     "rng_is_initialized",
     "printk",
     "add_device_randomness",
+    "__class_create",
+    "class_destroy",
     "register_kretprobe",
     "unregister_kretprobe",
 ];
