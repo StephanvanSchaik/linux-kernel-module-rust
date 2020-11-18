@@ -68,8 +68,7 @@ unsafe extern "C" fn read_callback<T: FileOperations>(
         Ok(v) => v,
         Err(_) => return Error::EINVAL.to_kernel_errno().try_into().unwrap(),
     };
-    let read = T::READ.unwrap();
-    match read(f, &File::from_ptr(file), &mut data, positive_offset) {
+    match f.read(&File::from_ptr(file), &mut data, positive_offset) {
         Ok(()) => {
             let written = len - data.len();
             (*offset) += bindings::loff_t::try_from(written).unwrap();
@@ -96,8 +95,7 @@ unsafe extern "C" fn write_callback<T: FileOperations>(
         Ok(v) => v,
         Err(_) => return Error::EINVAL.to_kernel_errno().try_into().unwrap(),
     };
-    let write = T::WRITE.unwrap();
-    match write(f, &mut data, positive_offset) {
+    match f.write(&mut data, positive_offset) {
         Ok(()) => {
             let read = len - data.len();
             (*offset) += bindings::loff_t::try_from(read).unwrap();
@@ -131,8 +129,7 @@ unsafe extern "C" fn llseek_callback<T: FileOperations>(
         _ => return Error::EINVAL.to_kernel_errno().into(),
     };
     let f = &*((*file).private_data as *const T);
-    let seek = T::SEEK.unwrap();
-    match seek(f, &File::from_ptr(file), off) {
+    match f.llseek(&File::from_ptr(file), off) {
         Ok(off) => off as bindings::loff_t,
         Err(e) => e.to_kernel_errno().into(),
     }
@@ -144,21 +141,9 @@ impl<T: FileOperations> FileOperationsVtable<T> {
     pub(crate) const VTABLE: bindings::file_operations = bindings::file_operations {
         open: Some(open_callback::<T>),
         release: Some(release_callback::<T>),
-        read: if let Some(_) = T::READ {
-            Some(read_callback::<T>)
-        } else {
-            None
-        },
-        write: if let Some(_) = T::WRITE {
-            Some(write_callback::<T>)
-        } else {
-            None
-        },
-        llseek: if let Some(_) = T::SEEK {
-            Some(llseek_callback::<T>)
-        } else {
-            None
-        },
+        read: Some(read_callback::<T>),
+        write: Some(write_callback::<T>),
+        llseek: Some(llseek_callback::<T>),
 
         #[cfg(not(kernel_4_9_0_or_greater))]
         aio_fsync: None,
@@ -204,10 +189,6 @@ impl<T: FileOperations> FileOperationsVtable<T> {
     };
 }
 
-pub type ReadFn<T> = Option<fn(&T, &File, &mut UserSlicePtrWriter, u64) -> KernelResult<()>>;
-pub type WriteFn<T> = Option<fn(&T, &mut UserSlicePtrReader, u64) -> KernelResult<()>>;
-pub type SeekFn<T> = Option<fn(&T, &File, SeekFrom) -> KernelResult<u64>>;
-
 /// `FileOperations` corresponds to the kernel's `struct file_operations`. You
 /// implement this trait whenever you'd create a `struct file_operations`.
 /// File descriptors may be used from multiple threads (or processes)
@@ -219,13 +200,32 @@ pub trait FileOperations: Sync + Sized {
 
     /// Reads data from this file to userspace. Corresponds to the `read`
     /// function pointer in `struct file_operations`.
-    const READ: ReadFn<Self> = None;
+    fn read(
+        &self,
+        _file: &File,
+        _buf: &mut UserSlicePtrWriter,
+        _offset: u64,
+    ) -> KernelResult<()> {
+        Err(Error::EINVAL)
+    }
 
     /// Writes data from userspace o this file. Corresponds to the `write`
     /// function pointer in `struct file_operations`.
-    const WRITE: WriteFn<Self> = None;
+    fn write(
+        &self,
+        _buf: &mut UserSlicePtrReader,
+        _offset: u64,
+    ) -> KernelResult<()> {
+        Err(Error::EINVAL)
+    }
 
     /// Changes the position of the file. Corresponds to the `llseek` function
     /// pointer in `struct file_operations`.
-    const SEEK: SeekFn<Self> = None;
+    fn llseek(
+        &self,
+        _file: &File,
+        _from: SeekFrom,
+    ) -> KernelResult<u64> {
+        Err(Error::EINVAL)
+    }
 }
