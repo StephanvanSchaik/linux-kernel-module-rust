@@ -6,7 +6,8 @@ const INCLUDED_TYPES: &[&str] = &[
     "file_system_type",
     "mode_t",
     "umode_t",
-    "ctl_table"
+    "ctl_table",
+    "kprobe_instance",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",
@@ -30,6 +31,8 @@ const INCLUDED_FUNCTIONS: &[&str] = &[
     "rng_is_initialized",
     "printk",
     "add_device_randomness",
+    "register_kretprobe",
+    "unregister_kretprobe",
 ];
 const INCLUDED_VARS: &[&str] = &[
     "EINVAL",

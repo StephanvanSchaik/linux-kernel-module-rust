@@ -5,6 +5,7 @@
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
+#include <linux/kprobes.h>
 
 // Bindgen gets confused at certain things
 //
