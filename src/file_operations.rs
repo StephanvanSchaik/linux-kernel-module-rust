@@ -20,7 +20,7 @@ pub struct File {
 }
 
 impl File {
-    unsafe fn from_ptr(ptr: *const bindings::file) -> File {
+    pub(crate) unsafe fn from_ptr(ptr: *const bindings::file) -> File {
         File { ptr }
     }
 
