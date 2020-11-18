@@ -6,6 +6,7 @@ use alloc::boxed::Box;
 use crate::bindings;
 use crate::c_types;
 use crate::error::{Error, KernelResult};
+use crate::ioctl::Ioctl;
 use crate::user_ptr::{UserSlicePtr, UserSlicePtrReader, UserSlicePtrWriter};
 
 bitflags::bitflags! {
@@ -135,6 +136,19 @@ unsafe extern "C" fn llseek_callback<T: FileOperations>(
     }
 }
 
+unsafe extern "C" fn unlocked_ioctl_callback<T: FileOperations>(
+    file: *mut bindings::file,
+    num: c_types::c_uint,
+    param: c_types::c_ulong,
+) -> c_types::c_long {
+    let num = Ioctl::from(num);
+    let f = &*((*file).private_data as *const T);
+    match f.unlocked_ioctl(&File::from_ptr(file), num, param) {
+        Ok(ret) => ret as c_types::c_long,
+        Err(e) => e.to_kernel_errno().into(),
+    }
+}
+
 pub(crate) struct FileOperationsVtable<T>(marker::PhantomData<T>);
 
 impl<T: FileOperations> FileOperationsVtable<T> {
@@ -144,6 +158,7 @@ impl<T: FileOperations> FileOperationsVtable<T> {
         read: Some(read_callback::<T>),
         write: Some(write_callback::<T>),
         llseek: Some(llseek_callback::<T>),
+        unlocked_ioctl: Some(unlocked_ioctl_callback::<T>),
 
         #[cfg(not(kernel_4_9_0_or_greater))]
         aio_fsync: None,
@@ -184,7 +199,6 @@ impl<T: FileOperations> FileOperationsVtable<T> {
         show_fdinfo: None,
         splice_read: None,
         splice_write: None,
-        unlocked_ioctl: None,
         write_iter: None,
     };
 }
@@ -226,6 +240,17 @@ pub trait FileOperations: Sync + Sized {
         &self,
         _file: &File,
         _from: SeekFrom,
+    ) -> KernelResult<u64> {
+        Err(Error::EINVAL)
+    }
+
+    /// Corresponds to the `unlocked_ioctl` function pointer in
+    /// `struct file_operations`.
+    fn unlocked_ioctl(
+        &self,
+        _file: &File,
+        _num: Ioctl,
+        _param: u64,
     ) -> KernelResult<u64> {
         Err(Error::EINVAL)
     }
