@@ -34,10 +34,35 @@ impl Drop for Class {
     }
 }
 
+#[derive(Clone, Copy)]
+pub struct DeviceNumber(pub u32, pub u32);
+
+impl DeviceNumber {
+    pub fn major(&self) -> u32 {
+        self.0
+    }
+
+    pub fn minor(&self) -> u32 {
+        self.1
+    }
+}
+
+impl From<bindings::dev_t> for DeviceNumber {
+    fn from(value: u32) -> Self {
+        Self(value >> 20, value & ((1 << 20) - 1))
+    }
+}
+
+impl Into<u32> for DeviceNumber {
+    fn into(self) -> bindings::dev_t {
+        self.0 << 20 | self.1
+    }
+}
+
 pub struct Device {
     class: Arc<Class>,
     _device: *mut bindings::device,
-    number: bindings::dev_t,
+    dev: DeviceNumber,
 }
 
 unsafe impl Sync for Device {}
@@ -46,15 +71,13 @@ impl Device {
     pub fn new(
         class: Arc<Class>,
         name: CStr<'static>,
-        dev: (bindings::dev_t, bindings::dev_t),
+        dev: DeviceNumber,
     ) -> Self {
-        let number = ((dev.0 as bindings::dev_t) << 8) | dev.1 as bindings::dev_t;
-
         let device = unsafe {
             bindings::device_create(
                 class.class,
                 core::ptr::null_mut(),
-                number,
+                dev.into(),
                 core::ptr::null_mut(),
                 name.as_ptr() as *const c_types::c_char,
             )
@@ -63,7 +86,7 @@ impl Device {
         Self {
             class: class,
             _device: device,
-            number,
+            dev,
         }
     }
 }
@@ -71,7 +94,7 @@ impl Device {
 impl Drop for Device {
     fn drop(&mut self) {
         unsafe {
-            bindings::device_destroy(self.class.class, self.number);
+            bindings::device_destroy(self.class.class, self.dev.into());
         }
     }
 }

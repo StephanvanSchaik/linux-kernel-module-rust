@@ -8,6 +8,7 @@ use alloc::vec::Vec;
 
 use crate::bindings;
 use crate::c_types;
+use crate::device::DeviceNumber;
 use crate::error::{Error, KernelResult};
 use crate::file_operations;
 use crate::types::CStr;
@@ -87,8 +88,8 @@ pub struct Registration {
 unsafe impl Sync for Registration {}
 
 impl Registration {
-    pub fn dev(&self) -> bindings::dev_t {
-        self.dev
+    pub fn dev(&self, minor: bindings::dev_t) -> DeviceNumber {
+        DeviceNumber::from(self.dev | minor)
     }
 }
 
