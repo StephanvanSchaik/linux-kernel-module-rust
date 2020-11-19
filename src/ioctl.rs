@@ -7,8 +7,8 @@ pub enum Ioctl {
 }
 
 impl Ioctl {
-    const READ: u32 = 1;
-    const WRITE: u32 = 2;
+    const READ: u32 = 2;
+    const WRITE: u32 = 1;
     const READ_WRITE: u32 = Ioctl::READ | Ioctl::WRITE;
 
     const NUM_BITS: usize = 8;
