@@ -23,6 +23,7 @@ pub mod random;
 pub mod sysctl;
 mod types;
 pub mod usb;
+#[cfg(feature = "usbnet")]
 pub mod usb_net;
 pub mod user_ptr;
 

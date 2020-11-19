@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Alex Gaynor <alex.gaynor@gmail.com>"]
 edition = "2018"
 
+[features]
+usbnet = []
+
 [dependencies]
 bitflags = "1"
 intrusive-collections = "0.9"
