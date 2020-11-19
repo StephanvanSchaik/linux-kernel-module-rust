@@ -136,6 +136,7 @@ unsafe extern "C" fn ioctl_callback<T: ProcOperations>(
 
 pub(crate) struct ProcOperationsVtable<T>(marker::PhantomData<T>);
 
+#[cfg(kernel_5_6_0_or_greater)]
 impl<T: ProcOperations> ProcOperationsVtable<T> {
     pub(crate) const VTABLE: bindings::proc_ops = bindings::proc_ops {
         proc_flags: 0,
@@ -154,6 +155,58 @@ impl<T: ProcOperations> ProcOperationsVtable<T> {
     };
 }
 
+#[cfg(not(kernel_5_6_0_or_greater))]
+impl<T: ProcOperations> ProcOperationsVtable<T> {
+    pub(crate) const VTABLE: bindings::file_operations = bindings::file_operations {
+        open: Some(open_callback::<T>),
+        release: Some(release_callback::<T>),
+        read: Some(read_callback::<T>),
+        write: Some(write_callback::<T>),
+        llseek: Some(lseek_callback::<T>),
+        unlocked_ioctl: Some(ioctl_callback::<T>),
+
+        #[cfg(not(kernel_4_9_0_or_greater))]
+        aio_fsync: None,
+        check_flags: None,
+        #[cfg(all(kernel_4_5_0_or_greater, not(kernel_4_20_0_or_greater)))]
+        clone_file_range: None,
+        compat_ioctl: None,
+        #[cfg(kernel_4_5_0_or_greater)]
+        copy_file_range: None,
+        #[cfg(all(kernel_4_5_0_or_greater, not(kernel_4_20_0_or_greater)))]
+        dedupe_file_range: None,
+        fallocate: None,
+        #[cfg(kernel_4_19_0_or_greater)]
+        fadvise: None,
+        fasync: None,
+        flock: None,
+        flush: None,
+        fsync: None,
+        get_unmapped_area: None,
+        iterate: None,
+        #[cfg(kernel_4_7_0_or_greater)]
+        iterate_shared: None,
+        #[cfg(kernel_5_1_0_or_greater)]
+        iopoll: None,
+        lock: None,
+        mmap: None,
+        #[cfg(kernel_4_15_0_or_greater)]
+        mmap_supported_flags: 0,
+        owner: ptr::null_mut(),
+        poll: None,
+        read_iter: None,
+        #[cfg(kernel_4_20_0_or_greater)]
+        remap_file_range: None,
+        sendpage: None,
+        #[cfg(kernel_aufs_setfl)]
+        setfl: None,
+        setlease: None,
+        show_fdinfo: None,
+        splice_read: None,
+        splice_write: None,
+        write_iter: None,
+    };
+}
 
 /// `ProcOperations` correspondgs to the kernel's `struct proc_operations`. You
 /// implement this treait whenever you would create a `struct proc_operations`.
