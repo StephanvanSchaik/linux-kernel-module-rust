@@ -12,6 +12,8 @@
 #include <linux/usb.h>
 #include <linux/usb/usbnet.h>
 
+#include <asm/io.h>
+
 // Bindgen gets confused at certain things
 //
 const gfp_t BINDINGS_GFP_KERNEL = GFP_KERNEL;
