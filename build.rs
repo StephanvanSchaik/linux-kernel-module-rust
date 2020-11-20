@@ -19,6 +19,7 @@ const INCLUDED_TYPES: &[&str] = &[
     "mm_struct",
     "task_struct",
     "vma_area_struct",
+    "rw_semaphore",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",
@@ -50,6 +51,10 @@ const INCLUDED_FUNCTIONS: &[&str] = &[
     "proc_create",
     "proc_remove",
     "find_vma",
+    "down_read",
+    "down_write",
+    "up_read",
+    "up_write",
     "register_kretprobe",
     "unregister_kretprobe",
     "usb_register_driver",
