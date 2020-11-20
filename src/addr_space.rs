@@ -3,6 +3,30 @@ use crate::{Error, KernelResult};
 use crate::types::FromRaw;
 use crate::vma::VMA;
 
+pub struct ReadLock {
+    raw: *mut bindings::rw_semaphore,
+}
+
+impl Drop for ReadLock {
+    fn drop(&mut self) {
+        unsafe {
+            bindings::up_read(self.raw);
+        }
+    }
+}
+
+pub struct WriteLock {
+    raw: *mut bindings::rw_semaphore,
+}
+
+impl Drop for WriteLock {
+    fn drop(&mut self) {
+        unsafe {
+            bindings::up_write(self.raw);
+        }
+    }
+}
+
 pub struct AddressSpace {
     raw: *mut bindings::mm_struct,
 }
