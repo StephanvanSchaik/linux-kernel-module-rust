@@ -50,3 +50,7 @@ macro_rules! cstr {
         unsafe { $crate::CStr::new_unchecked(s) }
     }};
 }
+
+pub trait FromRaw<T> {
+    unsafe fn from_raw(raw: *mut T) -> Self;
+}
