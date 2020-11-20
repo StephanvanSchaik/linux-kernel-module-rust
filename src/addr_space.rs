@@ -55,6 +55,58 @@ impl AddressSpace {
 
         Ok(vma)
     }
+
+    #[cfg(kernel_5_8_0_or_greater)]
+    pub fn lock_read(&self) -> ReadLock {
+        let lock = unsafe { &mut (*self.raw).__bindgen_anon_1.mmap_lock };
+
+        unsafe {
+            bindings::down_read(lock);
+        }
+
+        ReadLock {
+            raw: lock,
+        }
+    }
+
+    #[cfg(not(kernel_5_8_0_or_greater))]
+    pub fn lock_read(&self) -> ReadLock {
+        let lock = unsafe { &mut (*self.raw).__bindgen_anon_1.mmap_sem };
+
+        unsafe {
+            bindings::down_read(lock);
+        }
+
+        ReadLock {
+            raw: lock,
+        }
+    }
+
+    #[cfg(kernel_5_8_0_or_greater)]
+    pub fn lock_write(&self) -> WriteLock {
+        let lock = unsafe { &mut (*self.raw).__bindgen_anon_1.mmap_lock };
+
+        unsafe {
+            bindings::down_write(lock);
+        }
+
+        WriteLock {
+            raw: lock,
+        }
+    }
+
+    #[cfg(not(kernel_5_8_0_or_greater))]
+    pub fn lock_write(&self) -> WriteLock {
+        let lock = unsafe { &mut (*self.raw).__bindgen_anon_1.mmap_sem };
+
+        unsafe {
+            bindings::down_write(lock);
+        }
+
+        WriteLock {
+            raw: lock,
+        }
+    }
 }
 
 impl FromRaw<bindings::mm_struct> for AddressSpace {
