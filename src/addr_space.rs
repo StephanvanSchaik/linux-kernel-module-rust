@@ -40,5 +40,3 @@ impl FromRaw<bindings::mm_struct> for AddressSpace {
         }
     }
 }
-
-
