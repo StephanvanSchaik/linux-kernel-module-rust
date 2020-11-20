@@ -16,6 +16,8 @@ const INCLUDED_TYPES: &[&str] = &[
     "usb_device_id",
     "usb_driver",
     "usbnet",
+    "mm_struct",
+    "task_struct",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",
@@ -76,6 +78,7 @@ const INCLUDED_VARS: &[&str] = &[
     "O_NONBLOCK",
     "phys_base",
     "page_offset_base",
+    "current_task",
 ];
 const OPAQUE_TYPES: &[&str] = &[
     // These need to be opaque because they're both packed and aligned, which rustc
