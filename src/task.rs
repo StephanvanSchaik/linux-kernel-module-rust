@@ -1,3 +1,4 @@
+use crate::addr_space::AddressSpace;
 use crate::bindings;
 use crate::percpu::PerCpu;
 use crate::types::FromRaw;
@@ -15,6 +16,16 @@ pub struct Task {
 impl Task {
     pub fn current() -> Self {
         PerCpu::current_task().read()
+    }
+
+    pub fn mm(&self) -> AddressSpace {
+        let raw = unsafe {
+            (*self.raw).mm
+        };
+
+        unsafe {
+            AddressSpace::from_raw(raw)
+        }
     }
 }
 
