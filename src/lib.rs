@@ -5,6 +5,7 @@ extern crate alloc;
 
 use core::panic::PanicInfo;
 
+pub mod addr_space;
 mod allocator;
 pub mod bindings;
 pub mod c_types;
