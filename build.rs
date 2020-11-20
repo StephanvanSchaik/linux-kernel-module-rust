@@ -49,6 +49,7 @@ const INCLUDED_FUNCTIONS: &[&str] = &[
     "proc_mkdir_mode",
     "proc_create",
     "proc_remove",
+    "find_vma",
     "register_kretprobe",
     "unregister_kretprobe",
     "usb_register_driver",
