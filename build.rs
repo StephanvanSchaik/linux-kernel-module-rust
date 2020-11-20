@@ -62,6 +62,7 @@ const INCLUDED_VARS: &[&str] = &[
     "ESPIPE",
     "EFAULT",
     "EAGAIN",
+    "ENOENT",
     "__this_module",
     "FS_REQUIRES_DEV",
     "FS_BINARY_MOUNTDATA",

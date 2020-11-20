@@ -11,6 +11,7 @@ impl Error {
     pub const EFAULT: Self = Error(-(bindings::EFAULT as i32));
     pub const ESPIPE: Self = Error(-(bindings::ESPIPE as i32));
     pub const EAGAIN: Self = Error(-(bindings::EAGAIN as i32));
+    pub const ENOENT: Self = Error(-(bindings::ENOENT as i32));
 
     pub fn from_kernel_errno(errno: c_types::c_int) -> Error {
         Error(errno)
