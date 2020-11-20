@@ -18,6 +18,7 @@ const INCLUDED_TYPES: &[&str] = &[
     "usbnet",
     "mm_struct",
     "task_struct",
+    "vma_area_struct",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",

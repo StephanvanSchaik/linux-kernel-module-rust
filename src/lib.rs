@@ -30,6 +30,7 @@ pub mod usb;
 #[cfg(feature = "usbnet")]
 pub mod usb_net;
 pub mod user_ptr;
+pub mod vma;
 
 pub use crate::error::{Error, KernelResult};
 pub use crate::types::{CStr, Mode};
