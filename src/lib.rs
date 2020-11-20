@@ -16,6 +16,7 @@ pub mod filesystem;
 pub mod ioctl;
 pub mod kprobe;
 pub mod page;
+pub mod percpu;
 pub mod printk;
 pub mod procfs;
 pub mod proc_operations;
