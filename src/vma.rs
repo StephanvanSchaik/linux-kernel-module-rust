@@ -18,10 +18,31 @@ bitflags! {
         const UFFD_MISSING = (1 << 9);
         const PFN_MAP = (1 << 10);
         const DENY_WRITE = (1 << 11);
-
         const UFFD_WP = (1 << 12);
+
         const LOCKED = (1 << 13);
         const IO = (1 << 14);
+
+        const SEQ_READ = (1 << 15);
+        const RAND_READ = (1 << 16);
+
+        const DONT_COPY = (1 << 17);
+        const DONT_EXPAND = (1 << 18);
+        const LOCK_ON_FAULT = (1 << 19);
+        const ACCOUNT = (1 << 20);
+        const NO_RESERVE = (1 << 21);
+        const HUGE_TLB = (1 << 22);
+        const SYNC = (1 << 23);
+        const ARCH_1 = (1 << 24);
+        const WIPE_ON_FORK = (1 << 25);
+        const DONT_DUMP = (1 << 26);
+
+        const SOFT_DIRTY = (1 << 27);
+
+        const MIXED_MAP = (1 << 28);
+        const HUGE_PAGE = (1 << 29);
+        const NO_HUGE_PAGE = (1 << 30);
+        const MERGEABLE = (1 << 31);
     }
 }
 
