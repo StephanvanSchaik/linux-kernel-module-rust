@@ -40,6 +40,12 @@ impl AddressSpace {
         self.raw
     }
 
+    pub fn vmas(&self) -> VMAIterator {
+        VMAIterator {
+            raw: unsafe { (*self.raw).__bindgen_anon_1.mmap },
+        }
+    }
+
     pub fn find_vma(&self, addr: u64) -> KernelResult<VMA> {
         let raw = unsafe {
             bindings::find_vma(self.raw, addr)
