@@ -1,11 +1,11 @@
 use crate::types::FromRaw;
 
 pub struct PerCpu<U> {
-    var: *mut U,
+    var: *const *mut U,
 }
 
 impl<U> PerCpu<U> {
-    pub fn from_var(var: *mut U) -> Self {
+    pub fn from_var(var: *const *mut U) -> Self {
         Self {
             var,
         }

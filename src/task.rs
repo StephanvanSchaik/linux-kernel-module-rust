@@ -5,7 +5,7 @@ use crate::types::FromRaw;
 
 impl PerCpu<bindings::task_struct> {
     pub fn current_task() -> PerCpu<bindings::task_struct> {
-        PerCpu::from_var(unsafe { bindings::current_task })
+        PerCpu::from_var(unsafe { &bindings::current_task })
     }
 }
 
