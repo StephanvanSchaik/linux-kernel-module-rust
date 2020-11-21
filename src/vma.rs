@@ -35,6 +35,24 @@ impl VMA {
     ) -> *mut bindings::vm_area_struct {
         self.raw
     }
+
+    pub fn start(&self) -> u64 {
+        unsafe { (*self.raw).vm_start }
+    }
+
+    pub fn end(&self) -> u64 {
+        unsafe { (*self.raw).vm_end }
+    }
+
+    pub fn flags(&self) -> VMFlags {
+        VMFlags::from_bits_truncate(unsafe { (*self.raw).vm_flags })
+    }
+
+    pub fn set_flags(&mut self, flags: VMFlags) {
+        unsafe {
+            (*self.raw).vm_flags = flags.bits();
+        }
+    }
 }
 
 impl FromRaw<bindings::vm_area_struct> for VMA {
