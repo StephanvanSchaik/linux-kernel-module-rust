@@ -116,3 +116,24 @@ impl FromRaw<bindings::mm_struct> for AddressSpace {
         }
     }
 }
+
+pub struct VMAIterator {
+    raw: *mut bindings::vm_area_struct,
+}
+
+impl Iterator for VMAIterator {
+    type Item = VMA;
+
+    fn next(&mut self) -> Option<VMA> {
+        if self.raw.is_null() {
+            return None;
+        }
+
+        let raw = self.raw;
+        self.raw = unsafe { (*raw).vm_next };
+
+        Some(unsafe {
+            VMA::from_raw(raw)
+        })
+    }
+}
