@@ -16,7 +16,7 @@ impl<U> PerCpu<U> {
 
         unsafe {
             asm!(
-                "mov QWORD PTR gs:[{1}], {0}",
+                "mov {0}, QWORD PTR gs:[{1}]",
                 out(reg) value,
                 in(reg) self.var,
             );
