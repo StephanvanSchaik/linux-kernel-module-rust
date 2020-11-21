@@ -74,6 +74,10 @@ impl VMA {
             (*self.raw).vm_flags = flags.bits();
         }
     }
+
+    pub fn offset(&self) -> u64 {
+        unsafe { (*self.raw).vm_pgoff }
+    }
 }
 
 impl FromRaw<bindings::vm_area_struct> for VMA {
