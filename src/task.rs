@@ -18,6 +18,10 @@ impl Task {
         PerCpu::current_task().read()
     }
 
+    pub fn raw(&self) -> *mut bindings::task_struct {
+        self.raw
+    }
+
     pub fn mm(&self) -> AddressSpace {
         let raw = unsafe {
             (*self.raw).mm
