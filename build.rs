@@ -1,5 +1,8 @@
-use std::io::{BufRead, BufReader};
+use flate2::bufread::GzDecoder;
+use std::collections::HashSet;
+use std::io::{BufRead, BufReader, Cursor, Read};
 use std::path::PathBuf;
+use std::process::Command;
 use std::{env, fs};
 
 const INCLUDED_TYPES: &[&str] = &[
@@ -95,6 +98,9 @@ const OPAQUE_TYPES: &[&str] = &[
     "desc_struct",
     "xregs_state",
 ];
+const CONFIG_NAMES: &[&str] = &[
+    "CONFIG_PAGE_TABLE_ISOLATION",
+];
 
 fn handle_kernel_version_cfg(bindings_path: &PathBuf) {
     let f = BufReader::new(fs::File::open(bindings_path).unwrap());
@@ -143,6 +149,128 @@ fn handle_kernel_symbols_cfg(symvers_path: &PathBuf) {
                 break;
             }
         }
+    }
+}
+
+fn parse_kernel_config<R: BufRead>(reader: R, whitelist: &[&str]) {
+    let whitelist = whitelist
+        .into_iter()
+        .map(|s| *s)
+        .collect::<HashSet<&str>>();
+    let enabled = vec!["y", "Y", "m", "M"]
+        .into_iter()
+        .collect::<HashSet<&str>>();
+
+    for line in reader.lines() {
+        let line = line.unwrap();
+
+        // Ignore comments.
+        if line.starts_with("#") {
+            continue;
+        }
+
+        // Split the line at the assignment.
+        let split = line
+            .splitn(2, "=")
+            .map(|s| s.trim())
+            .collect::<Vec<&str>>();
+
+        // Too few elements.
+        if split.len() < 2 {
+            continue;
+        }
+
+        // The number of page table levels is numeric, so handle it like the kernel version.
+        if split[0] == "CONFIG_PGTABLE_LEVELS" {
+            let value = match split[1].parse::<usize>() {
+                Ok(n) => n,
+                _ => continue,
+            };
+
+            if value >= 5 {
+                println!("cargo:rustc-cfg=pgtable_levels_5_or_greater");
+            }
+
+            if value >= 4 {
+                println!("cargo:rustc-cfg=pgtable_levels_4_or_greater");
+            }
+
+            if value >= 3 {
+                println!("cargo:rustc-cfg=pgtable_levels_3_or_greater");
+            }
+
+            continue;
+        }
+
+        // Do we care about this config option?
+        if !whitelist.contains(split[0]) {
+            continue;
+        }
+
+        // Has it been enabled?
+        if !enabled.contains(split[1]) {
+            continue;
+        }
+
+        // Expose it to Rust.
+        let name = match split[0].splitn(2, "_").last() {
+            Some(name) => name,
+            _ => continue,
+        };
+
+        println!("cargo:rustc-cfg={}", name.to_lowercase());
+    }
+}
+
+fn handle_kernel_config(path: &PathBuf, whitelist: &[&str]) {
+    let f = BufReader::new(fs::File::open(path).unwrap());
+    parse_kernel_config(f, whitelist);
+}
+
+fn handle_gzip_kernel_config(path: &PathBuf, whitelist: &[&str]) {
+    // Decompress the file.
+    let mut gz = GzDecoder::new(BufReader::new(fs::File::open(path).unwrap()));
+    let mut s = String::new();
+    gz.read_to_string(&mut s).unwrap();
+
+    // Pass it as a BufRead.
+    let f = BufReader::new(Cursor::new(s));
+
+    parse_kernel_config(f, whitelist);
+}
+
+fn handle_kernel_config_cfg(whitelist: &[&str]) {
+    let mut config_paths = vec![
+        PathBuf::from("/proc/config"),
+        PathBuf::from("/proc/config.gz"),
+    ];
+
+    if let Ok(uname) = Command::new("uname")
+        .arg("-r")
+        .output() {
+        let version = std::str::from_utf8(&uname.stdout).unwrap();
+        config_paths.push(PathBuf::from(format!("/boot/config-{}", version)));
+    }
+
+    config_paths.push(PathBuf::from(env::var("KDIR").unwrap()).join(".config"));
+
+    for config_path in &config_paths {
+        if !config_path.exists() {
+            continue;
+        }
+
+        let extension = match config_path.extension() {
+            Some(extension) => extension.to_str().unwrap(),
+            _ => "",
+        };
+
+        if extension == "gz" {
+            handle_gzip_kernel_config(&config_path, whitelist);
+        } else {
+            handle_kernel_config(&config_path, whitelist);
+        }
+
+        break;
     }
 }
 
@@ -221,6 +349,7 @@ fn main() {
 
     handle_kernel_version_cfg(&out_path.join("bindings.rs"));
     handle_kernel_symbols_cfg(&PathBuf::from(&kernel_dir).join("Module.symvers"));
+    handle_kernel_config_cfg(CONFIG_NAMES);
 
     let mut builder = cc::Build::new();
     builder.compiler(env::var("CC").unwrap_or_else(|_| "clang".to_string()));

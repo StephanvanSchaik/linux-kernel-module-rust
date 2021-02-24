@@ -14,4 +14,5 @@ intrusive-collections = "0.9"
 [build-dependencies]
 bindgen = "0.54"
 cc = "1.0"
+flate2 = "1.0"
 shlex = "0.1"
