@@ -1,7 +1,13 @@
 use crate::bindings;
+use crate::c_types;
 use crate::{Error, KernelResult};
+use crate::paging::PGD;
 use crate::types::FromRaw;
 use crate::vma::VMA;
+
+extern "C" {
+    fn pgd_offset_helper(mm: *const bindings::mm_struct, va: c_types::c_ulong) -> *mut bindings::pgd_t;
+}
 
 extern "C" {
     fn spin_lock_helper(lock: *const bindings::spinlock_t);
@@ -140,6 +146,14 @@ impl AddressSpace {
 
         Spinlock {
             raw: lock,
+        }
+    }
+
+    pub fn map_offset(&mut self, va: c_types::c_ulong) -> PGD {
+        PGD {
+            raw: unsafe {
+                pgd_offset_helper(self.raw, va)
+            },
         }
     }
 }

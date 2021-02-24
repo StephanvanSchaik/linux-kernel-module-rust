@@ -24,6 +24,16 @@ const INCLUDED_TYPES: &[&str] = &[
     "vma_area_struct",
     "rw_semaphore",
     "spinlock_t",
+    "pgd_t",
+    "pgdval_t",
+    "p4d_t",
+    "p4dval_t",
+    "pud_t",
+    "pudval_t",
+    "pmd_t",
+    "pmdval_t",
+    "pte_t",
+    "pteval_t",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",
@@ -98,6 +108,9 @@ const OPAQUE_TYPES: &[&str] = &[
     // and https://github.com/rust-lang/rust-bindgen/issues/1538
     "desc_struct",
     "xregs_state",
+    "u64_stats_sync",
+    "lock_class_key",
+    "dev_archdata",
 ];
 const CONFIG_NAMES: &[&str] = &[
     "CONFIG_PAGE_TABLE_ISOLATION",
