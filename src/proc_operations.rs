@@ -148,6 +148,8 @@ impl<T: ProcOperations> ProcOperationsVtable<T> {
         proc_lseek: Some(lseek_callback::<T>),
         proc_ioctl: Some(ioctl_callback::<T>),
 
+        #[cfg(kernel_5_10_0_or_greater)]
+        proc_read_iter: None,
         proc_poll: None,
         proc_compat_ioctl: None,
         proc_mmap: None,
