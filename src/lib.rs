@@ -10,6 +10,7 @@ mod allocator;
 pub mod bindings;
 pub mod c_types;
 pub mod chrdev;
+pub mod cpuinfo;
 pub mod device;
 mod error;
 pub mod file_operations;

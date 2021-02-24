@@ -102,6 +102,19 @@ const CONFIG_NAMES: &[&str] = &[
     "CONFIG_PAGE_TABLE_ISOLATION",
 ];
 
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+const ARCH_TYPES: &[&str] = &[
+    "cpuinfo_x86",
+];
+
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+const ARCH_VARS: &[&str] = &[
+    "boot_cpu_data",
+    "NCAPINTS",
+    "NBUGINTS",
+    "X86_FEATURE_LA57",
+];
+
 fn handle_kernel_version_cfg(bindings_path: &PathBuf) {
     let f = BufReader::new(fs::File::open(bindings_path).unwrap());
     let mut version = None;
@@ -340,6 +353,14 @@ fn main() {
     for t in OPAQUE_TYPES {
         builder = builder.opaque_type(t);
     }
+
+    for t in ARCH_TYPES {
+        builder = builder.whitelist_type(t);
+    }
+    for v in ARCH_VARS {
+        builder = builder.whitelist_var(v);
+    }
+
     let bindings = builder.generate().expect("Unable to generate bindings");
 
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
