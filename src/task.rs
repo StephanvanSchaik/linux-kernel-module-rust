@@ -18,6 +18,28 @@ impl Task {
         PerCpu::current_task().read()
     }
 
+    pub fn with_pid(pid: bindings::pid_t) -> Option<Self> {
+        let vpid = unsafe {
+            bindings::find_vpid(pid)
+        };
+
+        if vpid.is_null() {
+            return None;
+        }
+
+        let raw = unsafe {
+            bindings::pid_task(vpid, bindings::pid_type::PIDTYPE_PID)
+        };
+
+        if raw.is_null() {
+            return None;
+        }
+
+        Some(Self {
+            raw,
+        })
+    }
+
     pub fn raw(&self) -> *mut bindings::task_struct {
         self.raw
     }

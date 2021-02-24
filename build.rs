@@ -34,6 +34,7 @@ const INCLUDED_TYPES: &[&str] = &[
     "pmdval_t",
     "pte_t",
     "pteval_t",
+    "pid_t",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",
@@ -76,6 +77,8 @@ const INCLUDED_FUNCTIONS: &[&str] = &[
     "usbnet_disconnect",
     "usbnet_get_endpoints",
     "usbnet_probe",
+    "find_vpid",
+    "pid_task",
 ];
 const INCLUDED_VARS: &[&str] = &[
     "EINVAL",
@@ -367,6 +370,7 @@ fn main() {
     for t in OPAQUE_TYPES {
         builder = builder.opaque_type(t);
     }
+    builder = builder.constified_enum_module("pid_type");
 
     for t in ARCH_TYPES {
         builder = builder.whitelist_type(t);

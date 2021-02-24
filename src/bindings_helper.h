@@ -5,6 +5,7 @@
 #include <linux/slab.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
+#include <linux/pid.h>
 #include <linux/proc_fs.h>
 #include <linux/kprobes.h>
 #include <linux/netdevice.h>
