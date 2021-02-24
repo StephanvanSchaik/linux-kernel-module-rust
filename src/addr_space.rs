@@ -3,6 +3,23 @@ use crate::{Error, KernelResult};
 use crate::types::FromRaw;
 use crate::vma::VMA;
 
+extern "C" {
+    fn spin_lock_helper(lock: *const bindings::spinlock_t);
+    fn spin_unlock_helper(lock: *const bindings::spinlock_t);
+}
+
+pub struct Spinlock {
+    raw: *mut bindings::spinlock,
+}
+
+impl Drop for Spinlock {
+    fn drop(&mut self) {
+        unsafe {
+            spin_unlock_helper(self.raw);
+        }
+    }
+}
+
 pub struct ReadLock {
     raw: *mut bindings::rw_semaphore,
 }

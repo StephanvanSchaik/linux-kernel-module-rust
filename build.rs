@@ -23,6 +23,7 @@ const INCLUDED_TYPES: &[&str] = &[
     "task_struct",
     "vma_area_struct",
     "rw_semaphore",
+    "spinlock_t",
 ];
 const INCLUDED_FUNCTIONS: &[&str] = &[
     "cdev_add",

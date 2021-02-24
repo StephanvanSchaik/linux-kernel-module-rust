@@ -2,7 +2,7 @@
 #include <linux/printk.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
-
+#include <linux/spinlock.h>
 
 void bug_helper(void)
 {
@@ -16,6 +16,16 @@ int access_ok_helper(const void __user *addr, unsigned long n)
 #else
     return access_ok(0, addr, n);
 #endif
+}
+
+void spin_lock_helper(spinlock_t *lock)
+{
+	spin_lock(lock);
+}
+
+void spin_unlock_helper(spinlock_t *lock)
+{
+	spin_unlock(lock);
 }
 
 /* see https://github.com/rust-lang/rust-bindgen/issues/1671 */
