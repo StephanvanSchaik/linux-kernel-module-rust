@@ -17,7 +17,7 @@ pub trait ReturnProbeHandler: Sync {
 fn instance_to_retprobe(
     instance: &bindings::kretprobe_instance,
 ) -> *const bindings::kretprobe {
-    (*instance.rph).rp
+    unsafe { (*instance.rph) }.rp
 }
 
 #[cfg(not(kernel_5_11_0_or_greater))]
