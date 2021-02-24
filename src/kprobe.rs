@@ -13,6 +13,20 @@ pub trait ReturnProbeHandler: Sync {
     fn handler(&self, regs: &mut pt_regs) -> i32;
 }
 
+#[cfg(kernel_5_11_0_or_greater)]
+fn instance_to_retprobe(
+    instance: &bindings::kretprobe_instance,
+) -> *const bindings::kretprobe {
+    (*instance.rph).rp
+}
+
+#[cfg(not(kernel_5_11_0_or_greater))]
+fn instance_to_retprobe(
+    instance: &bindings::kretprobe_instance,
+) -> *const bindings::kretprobe {
+    instance.rp
+}
+
 unsafe extern "C" fn return_callback<T: ReturnProbeHandler>(
     instance: *mut bindings::kretprobe_instance,
     regs: *mut pt_regs,
@@ -22,7 +36,7 @@ unsafe extern "C" fn return_callback<T: ReturnProbeHandler>(
         _ => return -1,
     };
 
-    let storage: *const ReturnProbeStorage<T> = container_of!(instance.rp, ReturnProbeStorage<T>, probe);
+    let storage: *const ReturnProbeStorage<T> = container_of!(instance_to_retprobe(instance), ReturnProbeStorage<T>, probe);
     let storage = match storage.as_ref() {
         Some(probe) => probe,
         _ => return -1,
