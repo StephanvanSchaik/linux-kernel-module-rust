@@ -44,9 +44,23 @@ impl Task {
         self.raw
     }
 
-    pub fn mm(&self) -> AddressSpace {
+    pub fn mm(&self) -> Option<AddressSpace> {
         let raw = unsafe {
             (*self.raw).mm
+        };
+
+        if raw.is_null() {
+            return None;
+        }
+
+        Some(unsafe {
+            AddressSpace::from_raw(raw)
+        })
+    }
+
+    pub fn active_mm(&self) -> AddressSpace {
+        let raw = unsafe {
+            (*self.raw).active_mm
         };
 
         unsafe {
