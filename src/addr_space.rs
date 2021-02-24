@@ -130,6 +130,18 @@ impl AddressSpace {
             raw: lock,
         }
     }
+
+    pub fn lock_page_tables(&self) -> Spinlock {
+        let lock = unsafe { &mut (*self.raw).__bindgen_anon_1.page_table_lock };
+
+        unsafe {
+            spin_lock_helper(lock);
+        }
+
+        Spinlock {
+            raw: lock,
+        }
+    }
 }
 
 impl FromRaw<bindings::mm_struct> for AddressSpace {
