@@ -2,6 +2,7 @@ use crate::bindings;
 use crate::c_types;
 use crate::{Error, KernelResult};
 use crate::paging::PGD;
+use crate::spinlock::SpinlockGuard;
 use crate::types::FromRaw;
 use crate::vma::VMA;
 
@@ -11,19 +12,6 @@ extern "C" {
 
 extern "C" {
     fn spin_lock_helper(lock: *const bindings::spinlock_t);
-    fn spin_unlock_helper(lock: *const bindings::spinlock_t);
-}
-
-pub struct Spinlock {
-    raw: *mut bindings::spinlock,
-}
-
-impl Drop for Spinlock {
-    fn drop(&mut self) {
-        unsafe {
-            spin_unlock_helper(self.raw);
-        }
-    }
 }
 
 pub struct ReadLock {
@@ -137,18 +125,27 @@ impl AddressSpace {
         }
     }
 
-    pub fn lock_page_tables(&self) -> Spinlock {
+    pub fn lock_page_tables(&self) -> SpinlockGuard<PageTables> {
         let lock = unsafe { &mut (*self.raw).__bindgen_anon_1.page_table_lock };
 
         unsafe {
             spin_lock_helper(lock);
         }
 
-        Spinlock {
-            raw: lock,
+        SpinlockGuard {
+            inner: PageTables {
+                raw: self.raw,
+            },
+            lock,
         }
     }
+}
 
+pub struct PageTables {
+    raw: *mut bindings::mm_struct,
+}
+
+impl PageTables {
     pub fn map_offset(&mut self, va: c_types::c_ulong) -> PGD {
         PGD {
             raw: unsafe {

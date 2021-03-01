@@ -25,6 +25,7 @@ pub mod procfs;
 pub mod proc_operations;
 #[cfg(kernel_4_13_0_or_greater)]
 pub mod random;
+pub mod spinlock;
 pub mod sysctl;
 pub mod task;
 mod types;
