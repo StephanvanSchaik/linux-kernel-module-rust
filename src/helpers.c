@@ -19,6 +19,12 @@ int access_ok_helper(const void __user *addr, unsigned long n)
 #endif
 }
 
+struct task_struct *
+current_helper(void)
+{
+	return current;
+}
+
 void spin_lock_helper(spinlock_t *lock)
 {
 	spin_lock(lock);

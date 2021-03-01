@@ -1,12 +1,9 @@
 use crate::addr_space::AddressSpace;
 use crate::bindings;
-use crate::percpu::PerCpu;
 use crate::types::FromRaw;
 
-impl PerCpu<bindings::task_struct> {
-    pub fn current_task() -> PerCpu<bindings::task_struct> {
-        PerCpu::from_var(unsafe { &bindings::current_task })
-    }
+extern "C" {
+    fn current_helper() -> *mut bindings::task_struct;
 }
 
 pub struct Task {
@@ -15,7 +12,13 @@ pub struct Task {
 
 impl Task {
     pub fn current() -> Self {
-        PerCpu::current_task().read()
+        let raw = unsafe {
+            current_helper()
+        };
+
+        Self {
+            raw,
+        }
     }
 
     pub fn with_pid(pid: bindings::pid_t) -> Option<Self> {
