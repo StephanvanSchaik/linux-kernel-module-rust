@@ -1,5 +1,6 @@
 use crate::addr_space::AddressSpace;
 use crate::bindings;
+use crate::rwlock::RwLockRef;
 use crate::types::FromRaw;
 
 extern "C" {
@@ -46,8 +47,11 @@ impl Task {
     pub fn raw(&self) -> *mut bindings::task_struct {
         self.raw
     }
+}
 
-    pub fn mm(&self) -> Option<AddressSpace> {
+#[cfg(kernel_5_8_0_or_greater)]
+impl Task {
+    pub fn mm_lock<'a>(&self) -> Option<RwLockRef<AddressSpace>> {
         let raw = unsafe {
             (*self.raw).mm
         };
@@ -56,18 +60,61 @@ impl Task {
             return None;
         }
 
-        Some(unsafe {
-            AddressSpace::from_raw(raw)
+        let inner = unsafe { AddressSpace::from_raw(raw) };
+        let lock = unsafe { &mut (*raw).__bindgen_anon_1.mmap_lock };
+
+        Some(RwLockRef {
+            lock,
+            inner,
         })
     }
 
-    pub fn active_mm(&self) -> AddressSpace {
+    pub fn active_mm_lock<'a>(&self) -> RwLockRef<AddressSpace> {
         let raw = unsafe {
             (*self.raw).active_mm
         };
 
-        unsafe {
-            AddressSpace::from_raw(raw)
+        let inner = unsafe { AddressSpace::from_raw(raw) };
+        let lock = unsafe { &mut (*raw).__bindgen_anon_1.mmap_lock };
+
+        RwLockRef {
+            lock,
+            inner,
+        }
+    }
+}
+
+#[cfg(not(kernel_5_8_0_or_greater))]
+impl Task {
+    pub fn mm_lock<'a>(&self) -> Option<RwLockRef<AddressSpace>> {
+        let raw = unsafe {
+            (*self.raw).mm
+        };
+
+        if raw.is_null() {
+            return None;
+        }
+
+        let inner = unsafe { AddressSpace::from_raw(raw) };
+        let lock = unsafe { &mut (*raw).__bindgen_anon_1.mmap_sem };
+
+        Some(RwLockRef {
+            lock,
+            inner,
+        })
+    }
+
+    pub fn active_mm_lock<'a>(&self) -> RwLockRef<AddressSpace> {
+        let raw = unsafe {
+            (*self.raw).active_mm
+        };
+
+        let inner = unsafe { AddressSpace::from_raw(raw) };
+        let lock = unsafe { &mut (*raw).__bindgen_anon_1.mmap_sem };
+
+        RwLockRef {
+            lock,
+            inner,
         }
     }
 }
