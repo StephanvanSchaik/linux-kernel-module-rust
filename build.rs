@@ -114,6 +114,7 @@ const OPAQUE_TYPES: &[&str] = &[
     "u64_stats_sync",
     "lock_class_key",
     "dev_archdata",
+    "mod_arch_specific",
 ];
 const CONFIG_NAMES: &[&str] = &[
     "CONFIG_PAGE_TABLE_ISOLATION",
