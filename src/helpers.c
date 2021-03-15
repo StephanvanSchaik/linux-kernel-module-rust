@@ -3,7 +3,12 @@
 #include <linux/uaccess.h>
 #include <linux/version.h>
 #include <linux/spinlock.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 8, 0)
 #include <linux/pgtable.h>
+#else
+#include <asm/pgtable.h>
+#endif
 
 void bug_helper(void)
 {
