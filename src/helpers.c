@@ -10,6 +10,8 @@
 #include <asm/pgtable.h>
 #endif
 
+#include <asm/msr.h>
+
 void bug_helper(void)
 {
     BUG();

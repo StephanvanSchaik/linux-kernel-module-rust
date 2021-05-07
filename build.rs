@@ -79,6 +79,8 @@ const INCLUDED_FUNCTIONS: &[&str] = &[
     "usbnet_probe",
     "find_vpid",
     "pid_task",
+    "rdmsr_safe_on_cpu",
+    "wrmsr_safe_on_cpu",
 ];
 const INCLUDED_VARS: &[&str] = &[
     "EINVAL",

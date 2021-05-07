@@ -16,6 +16,8 @@ pub mod file_operations;
 pub mod filesystem;
 pub mod ioctl;
 pub mod kprobe;
+#[cfg(target_arch = "x86_64")]
+pub mod msr;
 pub mod page;
 pub mod paging;
 pub mod percpu;
